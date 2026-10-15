@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: fluxo
+      POSTGRES_USER: fluxo
+      POSTGRES_PASSWORD: fluxo
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fluxo"]
+      interval: 5s
+      retries: 10
+
+  # Full application: docker compose --profile app up -d --build
+  app:
+    profiles: ["app"]
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FLUXO_DB_URL: jdbc:postgresql://db:5432/fluxo
+      FLUXO_DB_USER: fluxo
+      FLUXO_DB_PASSWORD: fluxo
+      FLUXO_ADMIN_USERNAME: ${FLUXO_ADMIN_USERNAME:-}
+      FLUXO_ADMIN_PASSWORD: ${FLUXO_ADMIN_PASSWORD:-}
+      FLUXO_SECRET: ${FLUXO_SECRET:-}  # required: the app refuses to start without it
+    ports:
+      - "8080:8080"
+    volumes:
+      - attachments:/data/attachments
+
+volumes:
+  db-data:
+  attachments:

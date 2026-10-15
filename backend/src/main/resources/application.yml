@@ -1,0 +1,34 @@
+spring:
+  application.name: fluxo
+  datasource:
+    url: ${FLUXO_DB_URL:jdbc:postgresql://localhost:5432/fluxo}
+    username: ${FLUXO_DB_USER:fluxo}
+    password: ${FLUXO_DB_PASSWORD:fluxo}
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+    # Loads lazy collections (labels…) of many entities in batches instead of N+1 queries.
+    properties.hibernate.default_batch_fetch_size: 100
+  mvc.problemdetails.enabled: true
+  mvc.format.date: iso
+  servlet.multipart:
+    max-file-size: ${FLUXO_MAX_UPLOAD:25MB}
+    max-request-size: ${FLUXO_MAX_UPLOAD:25MB}
+
+management.endpoints.web.exposure.include: health
+
+fluxo:
+  admin:
+    username: ${FLUXO_ADMIN_USERNAME:}
+    password: ${FLUXO_ADMIN_PASSWORD:}
+  storage-dir: ${FLUXO_STORAGE_DIR:./data/attachments}
+  blocked-extensions: ${FLUXO_BLOCKED_EXTENSIONS:exe,bat,cmd,com,msi,scr,ps1,vbs}
+  # Signs "remember me" cookies. Set a long random value in production.
+  secret: ${FLUXO_SECRET:dev-only-secret-change-me}
+
+# OpenAPI 3 description and Swagger UI (spec §8); behind login like the rest of /api.
+springdoc:
+  api-docs.path: /api/openapi.json
+  swagger-ui.path: /api/docs
+  swagger-ui.config-url: /api/openapi.json/swagger-config
+  swagger-ui.url: /api/openapi.json
